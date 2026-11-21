@@ -58,3 +58,9 @@ Setelah itu import ulang egg di panel, lalu **Reinstall** server yang sudah ada.
   (build selalu ambil rilis terbaru).
 - Image ini tidak menyimpan data server. Data tetap di volume
   `/home/container` milik Pterodactyl.
+
+## File egg
+
+Egg siap import ada di repo ini: [`egg-hitsssh.json`](./egg-hitsssh.json)
+
+Di VPS juga tersedia di: `/root/egg-hitsssh.json`
