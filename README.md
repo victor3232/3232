@@ -1,30 +1,38 @@
-# Hitsssh - image runtime milik sendiri
+# Hitsssh runtime image
 
 Image ini menggantikan image runtime egg sebelumnya yang bergantung pada GHCR akun lain.
 
-- **Python 3.12** bawaan (fallback kalau `PYTHON_VERSION` dikosongkan)
-- **Node.js** dan **Python versi lain** di-install per server oleh egg
-  (dari nodejs.org dan python-build-standalone, sumber resmi)
-- **cloudflared** sudah di-bake di image
-- build tools (gcc/g++/make), git, curl, tini, iproute2
+## Isi image
+- **Node.js 22** built-in (`/opt/node/22`)
+- **Python 3.12** built-in
+- **cloudflared** built-in
+- gcc/g++/make, git, curl, tini, iproute2 (untuk build modul native)
+- `/opt/hitsssh/start.sh` (auto-detect app + tunnel + dependency)
 
-Repo: `victor3232/3232`
-Image: `ghcr.io/victor3232/3232:latest`
+## Kenapa tidak perlu `.runtime` lagi
+Runtime utama ada **di dalam image**, bukan di folder server. Jadi:
+- area file server boleh dikosongkan lalu upload ulang script
+- tidak ada folder `.runtime` yang harus dijaga
+- install server jadi cepat (tanpa download Node/Python/cloudflared)
+
+Versi selain default (Node 18/20/24, Python 3.10/3.11/3.13/3.14)
+di-download otomatis saat start pertama ke `<server>/.hitsssh/` (cache).
+Kalau folder itu terhapus, akan di-download ulang otomatis.
 
 ## Build otomatis (GitHub Actions)
 
-Workflow `build-image` jalan otomatis setiap push ke branch `main`
+Workflow `build-image` jalan otomatis setiap push ke `main`
 (atau lewat tab **Actions** -> **Run workflow**).
+
+Tag yang dihasilkan:
+- `ghcr.io/victor3232/3232:v2`
+- `ghcr.io/victor3232/3232:latest`
 
 Setelah build selesai:
 
-1. Buka halaman repo -> **Packages** -> pilih package `3232`.
-2. **Package settings** -> **Change visibility** -> **Public**.
-   Wajib, supaya Wings bisa pull tanpa `docker login`.
-3. Image siap dipakai: `ghcr.io/victor3232/3232:latest`
-
-Tidak perlu membuat token manual. Actions memakai `GITHUB_TOKEN`
-dengan permission `packages: write` yang sudah diatur di workflow.
+1. Buka repo -> **Packages** -> package `3232`.
+2. **Package settings** -> **Change visibility** -> **Public**
+   (supaya Wings bisa pull tanpa `docker login`).
 
 ## Build manual (kalau punya Docker)
 
@@ -33,6 +41,7 @@ echo "$GH_TOKEN" | docker login ghcr.io -u victor3232 --password-stdin
 
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
+  -t ghcr.io/victor3232/3232:v2 \
   -t ghcr.io/victor3232/3232:latest \
   --push .
 ```
@@ -43,24 +52,11 @@ Token harus Personal Access Token (classic) dengan scope
 ## Pakai di egg
 
 ```bash
-bash /root/set-own-image.sh ghcr.io/victor3232/3232:latest
+bash /root/set-own-image.sh ghcr.io/victor3232/3232:v2
 ```
 
-Atau edit manual `/root/egg-hitsssh.json` pada bagian `docker_images`.
-
-Setelah itu import ulang egg di panel, lalu **Reinstall** server yang sudah ada.
+Egg siap import: [`egg-hitsssh.json`](./egg-hitsssh.json)
 
 ## Catatan
-
-- Kalau butuh **ffmpeg** (bot musik), tambahkan `ffmpeg` ke daftar
-  `apt-get install` di Dockerfile, lalu push ulang.
-- Kalau butuh update cloudflared, jalankan ulang workflow
-  (build selalu ambil rilis terbaru).
-- Image ini tidak menyimpan data server. Data tetap di volume
-  `/home/container` milik Pterodactyl.
-
-## File egg
-
-Egg siap import ada di repo ini: [`egg-hitsssh.json`](./egg-hitsssh.json)
-
-Di VPS juga tersedia di: `/root/egg-hitsssh.json`
+- Butuh **ffmpeg** (bot musik)? tambahkan `ffmpeg` ke `apt-get install` di Dockerfile lalu push ulang.
+- Data server tetap di volume `/home/container` milik Pterodactyl.
