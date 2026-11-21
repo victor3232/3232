@@ -10,7 +10,7 @@
     "description": "HITSSSH - all-in-one ringan: Node.js + Python + Cloudflare Tunnel dalam satu egg.\r\nNode.js dan Python punya pilihan versi sendiri di Variables (tanpa ganti image).\r\nCloudflare Tunnel tinggal isi CF_TOKEN dan set ENABLE_CF_TUNNEL=true.\r\nStartup command auto-detect (package.json / main.py / app.py / bot.py) atau isi STARTUP_CMD manual.\r\nTanpa Go, Bun, Playwright, ffmpeg, dan tool lain yang tidak perlu.",
     "features": [],
     "docker_images": {
-        "Python + Node.js": "ghcr.io/parkervcp/yolks:python_3.12"
+        "Hitsssh (self-hosted)": "ghcr.io/victor3232/3232:latest"
     },
     "file_denylist": [],
     "startup": "bash /mnt/server/.runtime/start.sh",
