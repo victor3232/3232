@@ -6,7 +6,7 @@
 
 FROM python:3.12-slim-bookworm
 
-ARG TARGETARCH=amd64
+ARG TARGETARCH
 ARG NODE_MAJOR=22
 ARG CLOUDFLARED_VERSION=latest
 
@@ -27,7 +27,7 @@ RUN apt-get update \
  && useradd -m -d /home/container -s /bin/bash container
 
 # Node.js bawaan image
-RUN case "${TARGETARCH}" in \
+RUN case "${TARGETARCH:-amd64}" in \
       amd64|"") NODE_ARCH=x64 ;; \
       arm64)    NODE_ARCH=arm64 ;; \
       *) echo "arsitektur tidak didukung: ${TARGETARCH}" && exit 1 ;; \
@@ -42,7 +42,7 @@ RUN case "${TARGETARCH}" in \
  && "/opt/node/${NODE_MAJOR}/bin/node" -v
 
 # cloudflared
-RUN case "${TARGETARCH}" in \
+RUN case "${TARGETARCH:-amd64}" in \
       amd64|"") CF_ARCH=amd64 ;; \
       arm64)    CF_ARCH=arm64 ;; \
       *) echo "arsitektur tidak didukung: ${TARGETARCH}" && exit 1 ;; \
